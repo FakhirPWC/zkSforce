@@ -3,12 +3,14 @@
   "version": "40.0.0",
   "license": "MIT",
   "summary": "A Cocoa library for calling the Salesforce.com SOAP APIs.",
-  "homepage": "https://github.com/superfell/zkSforce",
+  /*"homepage": "https://github.com/superfell/zkSforce",*/
+  "homepage": "https://github.com/FakhirPWC/zkSforce",
   "authors": {
     "Simon Fell": "fellforce@gmail.com"
   },
   "source": {
-    "git": "https://github.com/superfell/zkSforce.git",
+    /*"git": "https://github.com/superfell/zkSforce.git",*/
+    "git": "https://github.com/FakhirPWC/zkSforce.git",
     "tag": "v40.0.0"
   },
   "source_files": "zkSforce",
@@ -25,4 +27,4 @@
   "xcconfig": {
     "HEADER_SEARCH_PATHS": "$(SDKROOT)/usr/include/libxml2"
   }
-} 
+}

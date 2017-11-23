@@ -19,16 +19,12 @@
 // THE SOFTWARE.
 //
 
-#include <libxml/parser.h>
-
 FOUNDATION_EXPORT NSString *const NS_URI_XSI;
 FOUNDATION_EXPORT NSString *const NS_URI_XSD;
 
 @class ZKNamespacedName;
 
 @interface zkElement : NSObject <NSCopying> {
-	xmlDocPtr	doc;
-	xmlNodePtr	node;
 	zkElement	*parent;
 }
 /** @return the name of this element */

@@ -19,10 +19,18 @@
 // THE SOFTWARE.
 //
 
+#include <libxml/parser.h>
+
 #import "zkParser.h"
 
 NSString *const NS_URI_XSI = @"http://www.w3.org/2001/XMLSchema-instance";
 NSString *const NS_URI_XSD = @"http://www.w3.org/2001/XMLSchema";
+
+@interface zkElement() {
+    xmlDocPtr    doc;
+    xmlNodePtr    node;
+}
+@end
 
 @implementation zkElement
 

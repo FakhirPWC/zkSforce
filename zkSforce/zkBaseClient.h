@@ -23,6 +23,10 @@
 @class zkElement;
 @class ZKBaseClient;
 
+@protocol ZKBaseClientDataSource
+-(NSData *)client:(ZKBaseClient *)client responseDataForPayload:(NSString *)payload request:(NSURLRequest *)request response:(NSHTTPURLResponse *)resp withError:(NSError *)err;
+@end
+
 @protocol ZKBaseClientDelegate
 -(void)client:(ZKBaseClient *)client sentRequest:(NSString *)payload named:(NSString *)callName to:(NSURL *)destination withResponse:(zkElement *)response in:(NSTimeInterval)time;
 -(void)client:(ZKBaseClient *)client sentRequest:(NSString *)payload named:(NSString *)callName to:(NSURL *)destination withException:(NSException *)ex    in:(NSTimeInterval)time;
@@ -35,10 +39,13 @@
 }
 
 @property (assign) NSObject<ZKBaseClientDelegate> *delegate;
+@property (assign) NSObject<ZKBaseClientDataSource> *datasource;
 @property (retain) NSURL *endpointUrl;
 
 - (zkElement *)sendRequest:(NSString *)payload name:(NSString *)callName;
 - (zkElement *)sendRequest:(NSString *)payload name:(NSString *)callName returnRoot:(BOOL)root;
+- (NSMutableURLRequest *)requestWithPayload:(NSString *)payload;
+- (zkElement *)handleResponse:(NSHTTPURLResponse *)resp withResponsePayload:(NSData *)respPayload withError:(NSError *)err forRequest:(NSURLRequest *)request withPayload:(NSString *)payload name:(NSString *)callName returnRoot:(BOOL)returnRoot startTime:(uint64_t)start;
 
 /** @return the Soap:Header element from the response payload. */
 - (zkElement *)lastResponseSoapHeaders;

@@ -122,24 +122,48 @@ static const int DEFAULT_MAX_SESSION_AGE = 25 * 60; // 25 minutes
 }
 
 -(void)refresh {
+    NSMutableURLRequest *req = [self requestForRefresh];
+    
+    NSData *data = nil;
+    if ([[self dataSourceResponse] respondsToSelector:@selector(client:responseDataForPayload:request:response:withError:)]) {
+        NSError *err = nil;
+        data = [[self dataSourceResponse] client:nil responseDataForPayload:nil request:req response:nil withError:err];
+    }
+    [self handleRefreshResponseWithResponsePayload:data];
+}
+
+- (NSMutableURLRequest *)requestForRefresh {
+    
     NSURL *token = [NSURL URLWithString:@"/services/oauth2/token" relativeToURL:authUrl];
     NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:token];
     [req setHTTPMethod:@"POST"];
     NSString *params = [NSString stringWithFormat:@"grant_type=refresh_token&refresh_token=%@&client_id=%@&format=urlencoded",
-                      [refreshToken stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], 
-                      [clientId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+                        [refreshToken stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+                        [clientId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     [req setHTTPBody:[params dataUsingEncoding:NSUTF8StringEncoding]];
     [req addValue:@"application/x-www-form-urlencoded; charset=UTF-8" forHTTPHeaderField:@"Content-Type"];
+    
+    return req;
+}
 
- 	NSHTTPURLResponse *resp = nil;
-	NSError *err = nil;
-	NSData *respPayload = [NSURLConnection sendSynchronousRequest:req returningResponse:&resp error:&err];
+//- (NSData *)responseDataForRequest:(NSURLRequest *)request {
+//
+//    NSHTTPURLResponse *resp = nil;
+//    NSError *err = nil;
+//    NSData *respPayload = [NSURLConnection sendSynchronousRequest:request returningResponse:&resp error:&err];
+//
+//    return respPayload;
+//}
+
+- (void)handleRefreshResponseWithResponsePayload:(NSData *)respPayload {
+    
     NSString *respBody = [[[NSString alloc] initWithBytes:[respPayload bytes] length:[respPayload length] encoding:NSUTF8StringEncoding] autorelease];
     NSDictionary *results = [ZKOAuthInfo decodeParams:respBody];
     
     self.sessionId = [results objectForKey:@"access_token"];
     self.instanceUrl = [NSURL URLWithString:[results objectForKey:@"instance_url"]];
     self.sessionExpiresAt = [NSDate dateWithTimeIntervalSinceNow:DEFAULT_MAX_SESSION_AGE];
+
 }
 
 -(BOOL)refreshIfNeeded {
@@ -189,7 +213,7 @@ static const int DEFAULT_MAX_SESSION_AGE = 25 * 60; // 25 minutes
 	[env endElement:@"login"];
 	NSString *xml = [env end];
 	[env release];
-	
+    client.datasource = self.dataSourceResponse;
 	zkElement *resp = [client sendRequest:xml name:@"login"];
 	zkElement *result = [[resp childElements:@"result"] objectAtIndex:0];
 	ZKLoginResult *lr = [[[ZKLoginResult alloc] initWithXmlElement:result] autorelease];

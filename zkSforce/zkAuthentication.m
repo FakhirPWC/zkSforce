@@ -52,10 +52,10 @@ static const int DEFAULT_MAX_SESSION_AGE = 25 * 60; // 25 minutes
 }
 
 -(BOOL)refreshIfNeeded {
-	if (([sessionExpiresAt timeIntervalSinceNow] < 0) || (sessionId == nil)) {
-		[self refresh];    
-        return TRUE;
-    }
+//    if (([sessionExpiresAt timeIntervalSinceNow] < 0) || (sessionId == nil)) {
+//        [self refresh];
+//        return TRUE;
+//    }
     return FALSE;
 }
 

@@ -24,7 +24,7 @@
 @class ZKBaseClient;
 
 @protocol ZKBaseClientDataSource
--(NSData *)client:(ZKBaseClient *)client responseDataForPayload:(NSString *)payload request:(NSURLRequest *)request response:(NSHTTPURLResponse *)resp withError:(NSError *)err;
+-(NSData *)client:(ZKBaseClient *)client responseDataForPayload:(NSString *)payload request:(NSURLRequest **)request response:(NSHTTPURLResponse **)resp withError:(NSError *)err;
 @end
 
 @protocol ZKBaseClientDelegate

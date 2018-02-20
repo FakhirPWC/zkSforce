@@ -74,13 +74,14 @@ NSTimeInterval intervalFrom(uint64_t *start) {
 - (zkElement *)sendRequest:(NSString *)payload name:(NSString *)callName returnRoot:(BOOL)returnRoot {
     uint64_t start = mach_absolute_time();
     NSMutableURLRequest *request = [self requestWithPayload:payload];
-    NSHTTPURLResponse *resp = nil;
-    NSError *err = nil;
+    NSHTTPURLResponse *resp;
+    NSError *err;
     
     NSData *data = nil;
     if ([[self datasource] respondsToSelector:@selector(client:responseDataForPayload:request:response:withError:)]) {
-        data = [[self datasource] client:self responseDataForPayload:payload request:request response:resp withError:err];
+        data = [[self datasource] client:self responseDataForPayload:payload request:request response:&resp withError:&err];
     }
+
     return [self handleResponse:resp withResponsePayload:data withError:err forRequest:request withPayload:payload name:callName returnRoot:returnRoot startTime:start];
 }
 

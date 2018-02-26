@@ -56,9 +56,13 @@
 
 -(id)initWithRefreshToken:(NSString *)tkn authHost:(NSURL *)authUrl sessionId:(NSString *)sid instanceUrl:(NSURL *)inst clientId:(NSString *)cid;
 
+- (NSMutableURLRequest *)requestForRefresh;
+
 @property (assign) int apiVersion;
 @property (readonly) NSURL *authHostUrl;
 @property (readonly) NSString *refreshToken;
+
+@property (assign) NSObject<ZKBaseClientDataSource> *dataSourceResponse;
 @end
 
 
@@ -67,6 +71,8 @@
     NSString *username, *password;
     ZKBaseClient *client;
 }
+
+@property (assign) NSObject<ZKBaseClientDataSource> *dataSourceResponse;
 
 +(id)soapLoginWithUsername:(NSString *)un password:(NSString *)pwd authHost:(NSURL *)auth apiVersion:(int)v clientId:(NSString *)cid delegate:(NSObject<ZKBaseClientDelegate> *)delegate;
 

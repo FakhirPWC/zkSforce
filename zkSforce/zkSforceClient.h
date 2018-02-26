@@ -107,7 +107,7 @@
     @param username the salesforce username to try and authenticate
     @param password the password [and possibly api security token] of the user
 */
-- (ZKLoginResult *)login:(NSString *)username password:(NSString *)password;
+- (ZKLoginResult *)login:(NSString *)un password:(NSString *)pwd datasource:(NSObject<ZKBaseClientDataSource> *)dataSourceResponse;
 
 /** Initialize the authentication info from the parameters contained in the OAuth
     completion callback Uri passed in.

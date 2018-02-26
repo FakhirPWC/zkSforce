@@ -73,21 +73,34 @@ NSTimeInterval intervalFrom(uint64_t *start) {
 
 - (zkElement *)sendRequest:(NSString *)payload name:(NSString *)callName returnRoot:(BOOL)returnRoot {
     uint64_t start = mach_absolute_time();
-	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:endpointUrl];
-	[request setHTTPMethod:@"POST"];
-	[request addValue:@"text/xml; charset=UTF-8" forHTTPHeaderField:@"content-type"];	
-	[request addValue:@"\"\"" forHTTPHeaderField:@"SOAPAction"];
+    NSMutableURLRequest *request = [self requestWithPayload:payload];
+    NSHTTPURLResponse *resp;
+    NSError *err;
+    
+    NSData *data = nil;
+    if ([[self datasource] respondsToSelector:@selector(client:responseDataForPayload:request:response:withError:)]) {
+        data = [[self datasource] client:self responseDataForPayload:payload request:request response:&resp withError:&err];
+    }
+
+    return [self handleResponse:resp withResponsePayload:data withError:err forRequest:request withPayload:payload name:callName returnRoot:returnRoot startTime:start];
+}
+
+- (NSMutableURLRequest *)requestWithPayload:(NSString *)payload {
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:endpointUrl];
+    [request setHTTPMethod:@"POST"];
+    [request addValue:@"text/xml; charset=UTF-8" forHTTPHeaderField:@"content-type"];
+    [request addValue:@"\"\"" forHTTPHeaderField:@"SOAPAction"];
     [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
     [request setHTTPShouldHandleCookies:NO];
+    
+    NSData *data = [payload dataUsingEncoding:NSUTF8StringEncoding];
+    [request setHTTPBody:data];
+    
+    return request;
+}
 
-	NSData *data = [payload dataUsingEncoding:NSUTF8StringEncoding];
-	[request setHTTPBody:data];
-	
-	NSHTTPURLResponse *resp = nil;
-	NSError *err = nil;
-	// todo, support request compression
-	// todo, support response compression
-	NSData *respPayload = [NSURLConnection sendSynchronousRequest:request returningResponse:&resp error:&err];
+- (zkElement *)handleResponse:(NSHTTPURLResponse *)resp withResponsePayload:(NSData *)respPayload withError:(NSError *)err forRequest:(NSURLRequest *)request withPayload:(NSString *)payload name:(NSString *)callName returnRoot:(BOOL)returnRoot startTime:(uint64_t)start {
+    
     @try {
         if (err) {
             NSLog(@"Got error sending API request %@ : %@", request, err);
@@ -123,7 +136,7 @@ NSTimeInterval intervalFrom(uint64_t *start) {
         if (delegate != nil)
             [delegate client:self sentRequest:payload named:callName to:endpointUrl withResponse:root in:intervalFrom(&start)];
         return returnRoot ? root : [[body childElements] objectAtIndex:0];
-
+        
     } @catch (NSException *ex) {
         if (delegate != nil)
             [delegate client:self sentRequest:payload named:callName to:endpointUrl withException:ex in:intervalFrom(&start)];
